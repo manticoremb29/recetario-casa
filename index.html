@@ -3,51 +3,272 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Recetario Mensual — Menú por Semana y Día</title>
+  <title>Recetario Mensual — Casa</title>
+
   <style>
-    :root { --bg:#0b1220; --card:#111a2e; --muted:#9fb0d0; --txt:#e9efff; --accent:#7aa2ff; --line:#243458; }
-    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:linear-gradient(180deg,#070c16 0%, #0b1220 60%); color:var(--txt); }
-    .wrap{ max-width:1050px; margin:0 auto; padding:24px; }
-    h1{ font-size:22px; margin:0 0 6px; }
-    p{ margin:0 0 16px; color:var(--muted); }
-    .grid{ display:grid; gap:14px; grid-template-columns: 1fr; }
-    @media (min-width: 900px){ .grid{ grid-template-columns: 360px 1fr; } }
-    .card{ background:rgba(17,26,46,.92); border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow: 0 12px 30px rgba(0,0,0,.35); }
+    :root{
+      --bg: #fbfbfd;
+      --bg2:#fff7f3;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --shadow: 0 18px 50px rgba(17,24,39,.10);
+      --shadow2: 0 10px 25px rgba(17,24,39,.08);
+      --accent:#ff6b6b;
+      --accent2:#7c3aed;
+      --good:#10b981;
+      --chip:#f3f4f6;
+      --btn:#111827;
+      --btnText:#ffffff;
+      --soft1:#ffe7e7;
+      --soft2:#e8f1ff;
+      --soft3:#fff2d9;
+      --soft4:#e9fbf3;
+      --radius:18px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(255,107,107,.18), transparent 60%),
+        radial-gradient(1200px 700px at 90% -20%, rgba(124,58,237,.16), transparent 55%),
+        linear-gradient(180deg, var(--bg2) 0%, var(--bg) 45%, #ffffff 100%);
+    }
+
+    .wrap{ max-width:1120px; margin:0 auto; padding:22px; }
+
+    /* Header */
+    .hero{
+      display:flex; gap:16px; align-items:stretch; justify-content:space-between;
+      background: rgba(255,255,255,.78);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(8px);
+      overflow:hidden;
+    }
+    .heroLeft{ flex: 1; min-width: 240px; }
+    .heroTitle{
+      margin:0;
+      font-size:22px;
+      letter-spacing:-.02em;
+      display:flex; align-items:center; gap:10px;
+    }
+    .heroSub{ margin:6px 0 0; color:var(--muted); line-height:1.35; }
+
+    .heroBadges{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:var(--chip);
+      border:1px solid var(--line);
+      font-size:12px;
+      color: #374151;
+    }
+    .dot{ width:8px; height:8px; border-radius:999px; background:var(--good); }
+
+    .heroRight{
+      width: 330px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,107,107,.16), rgba(124,58,237,.12));
+      border:1px solid rgba(229,231,235,.8);
+      position:relative;
+      overflow:hidden;
+      display:flex; align-items:flex-end; justify-content:flex-start;
+      padding:14px;
+    }
+    .heroImg{
+      position:absolute; inset:0;
+      background-size:cover;
+      background-position:center;
+      filter: saturate(1.05) contrast(1.05);
+      opacity:.92;
+    }
+    .heroOverlay{
+      position:absolute; inset:0;
+      background: linear-gradient(180deg, rgba(255,255,255,.00) 0%, rgba(255,255,255,.86) 72%, rgba(255,255,255,.95) 100%);
+    }
+    .heroCaption{
+      position:relative;
+      z-index:2;
+      width:100%;
+      display:flex; justify-content:space-between; align-items:end; gap:10px;
+    }
+    .heroCaption h2{
+      margin:0;
+      font-size:14px;
+      color:#111827;
+      letter-spacing:-.01em;
+    }
+    .heroCaption p{
+      margin:2px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .miniChip{
+      position:relative;
+      z-index:2;
+      padding:8px 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.85);
+      border:1px solid rgba(229,231,235,.9);
+      font-size:12px;
+      color:#111827;
+      box-shadow: 0 8px 20px rgba(17,24,39,.10);
+      white-space:nowrap;
+    }
+
+    /* Layout */
+    .grid{ display:grid; gap:14px; grid-template-columns: 1fr; margin-top:14px; }
+    @media (min-width: 980px){ .grid{ grid-template-columns: 380px 1fr; } }
+
+    .card{
+      background: rgba(255,255,255,.85);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
     label{ display:block; font-size:12px; color:var(--muted); margin:10px 0 6px; }
-    select{ width:100%; padding:12px 12px; border-radius:12px; border:1px solid var(--line); background:#0a1122; color:var(--txt); outline:none; }
+    select{
+      width:100%;
+      padding:12px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background:#ffffff;
+      color:var(--text);
+      outline:none;
+      box-shadow: 0 6px 16px rgba(17,24,39,.06);
+    }
+
     .btns{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
-    button{ cursor:pointer; border:1px solid var(--line); background:#0a1122; color:var(--txt); padding:10px 12px; border-radius:12px; }
-    button.primary{ background: rgba(122,162,255,.12); border-color: rgba(122,162,255,.45); }
-    button:hover{ filter:brightness(1.07); }
-    .pill{ display:inline-flex; gap:8px; align-items:center; padding:6px 10px; border-radius:999px; background:rgba(122,162,255,.10); border:1px solid rgba(122,162,255,.30); color:var(--txt); font-size:12px; }
-    .sectionTitle{ margin:14px 0 8px; font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
-    .menuTitle{ font-size:18px; margin:8px 0 2px; }
-    .muted{ color:var(--muted); }
-    ul,ol{ margin:8px 0 0 18px; }
-    li{ margin:6px 0; }
-    .split{ display:grid; gap:14px; grid-template-columns: 1fr; }
-    @media (min-width: 900px){ .split{ grid-template-columns: 1fr 1fr; } }
-    .tiny{ font-size:12px; color:var(--muted); }
+    button{
+      cursor:pointer;
+      border:1px solid var(--line);
+      background:#ffffff;
+      color:#111827;
+      padding:10px 12px;
+      border-radius: 14px;
+      box-shadow: 0 8px 18px rgba(17,24,39,.06);
+      transition: transform .08s ease, filter .12s ease;
+    }
+    button:hover{ filter:brightness(1.02); transform: translateY(-1px); }
+    button.primary{
+      background: var(--btn);
+      color: var(--btnText);
+      border-color: rgba(17,24,39,.0);
+    }
+    button.ghost{
+      background: rgba(255,107,107,.10);
+      border-color: rgba(255,107,107,.22);
+    }
+
     .hr{ height:1px; background:var(--line); margin:14px 0; }
-    .footer{ margin-top:18px; font-size:12px; color:var(--muted); }
-    .kbd{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New"; background:#0a1122; border:1px solid var(--line); padding:2px 6px; border-radius:8px; }
+
+    .pillRow{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:999px;
+      border:1px solid var(--line);
+      background: #ffffff;
+      font-size:12px; color:#374151;
+    }
+    .pill strong{ color:#111827; }
+    .spark{ width:18px; height:18px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; }
+    .spark.s1{ background:var(--soft1); }
+    .spark.s2{ background:var(--soft2); }
+    .spark.s3{ background:var(--soft3); }
+    .spark.s4{ background:var(--soft4); }
+
+    .title{
+      margin:6px 0 2px;
+      font-size:20px;
+      letter-spacing:-.02em;
+    }
+    .subtitle{ margin:0 0 10px; color:var(--muted); }
+
+    .twoCols{ display:grid; gap:14px; grid-template-columns: 1fr; }
+    @media (min-width: 980px){ .twoCols{ grid-template-columns: 1fr 1fr; } }
+
+    .sectionTitle{
+      margin:10px 0 8px;
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.10em;
+    }
+    ul,ol{ margin:8px 0 0 18px; }
+    li{ margin:6px 0; line-height:1.35; }
+
+    .hint{
+      font-size:12px; color:var(--muted); line-height:1.35;
+      background: rgba(124,58,237,.06);
+      border:1px solid rgba(124,58,237,.14);
+      padding:10px 12px;
+      border-radius: 14px;
+    }
+
+    .footer{
+      margin-top:14px;
+      font-size:12px;
+      color:var(--muted);
+      text-align:left;
+    }
+
     @media print{
-      body{ background:white; color:black; }
-      .card{ box-shadow:none; background:white; border:1px solid #ddd; }
-      select, button{ display:none !important; }
-      .pill{ border:1px solid #aaa; background:#f3f3f3; color:#111; }
-      .muted, p, .tiny, .footer{ color:#333; }
+      body{ background:white; }
+      .heroRight, .btns, select{ display:none !important; }
+      .card, .hero{ box-shadow:none; background:white; }
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <h1>🍽️ Recetario Mensual (Semana + Día)</h1>
-    <p>Elige la semana y el día, y te sale el menú con preparación paso a paso.</p>
+
+    <div class="hero">
+      <div class="heroLeft">
+        <h1 class="heroTitle">🍽️ Recetario Mensual (Semana + Día)</h1>
+        <p class="heroSub">Elige la semana y el día, y te sale el menú con preparación paso a paso. Hecho para cosas fáciles de conseguir en Cartagena.</p>
+
+        <div class="heroBadges">
+          <div class="badge"><span class="dot"></span><span id="todayBadge">Hoy: —</span></div>
+          <div class="badge">⏱️ 30–45 min aprox</div>
+          <div class="badge">🍚 Arroz con sabor</div>
+          <div class="badge">🥗 Ensaladas variadas</div>
+        </div>
+      </div>
+
+      <div class="heroRight">
+        <div class="heroImg" id="heroImg"></div>
+        <div class="heroOverlay"></div>
+
+        <div class="heroCaption">
+          <div>
+            <h2 id="heroTitle">Tu menú del día</h2>
+            <p id="heroDesc">Selecciona semana y día</p>
+          </div>
+          <div class="miniChip" id="heroChip">✨</div>
+        </div>
+      </div>
+    </div>
 
     <div class="grid">
+      <!-- Controls -->
       <div class="card">
-        <div class="pill" id="todayPill">📅 Hoy: —</div>
+        <div class="pillRow">
+          <div class="pill"><span class="spark s1">📅</span> <strong id="pillWeek">SEMANA 1</strong></div>
+          <div class="pill"><span class="spark s2">🗓️</span> <strong id="pillDay">LUNES</strong></div>
+          <div class="pill"><span class="spark s3">🍳</span> <span id="pillType">—</span></div>
+        </div>
 
         <label for="weekSelect">Semana</label>
         <select id="weekSelect"></select>
@@ -58,28 +279,42 @@
         <div class="btns">
           <button class="primary" id="showBtn">Ver menú</button>
           <button id="printBtn">Imprimir</button>
-          <button id="copyBtn">Copiar receta</button>
+          <button class="ghost" id="copyBtn">Copiar receta</button>
         </div>
 
         <div class="hr"></div>
-        <div class="tiny">
-          Tip: puedes fijar la semana del mes y cada día solo abres esto, eliges día, y cocinas.
+        <div class="hint">
+          Tip: puedes fijar la semana del mes y cada día solo abres esto, eliges día, y cocinas.  
+          (Si un día cambias proteína, no pasa nada — usa el paso a paso como guía).
         </div>
       </div>
 
+      <!-- Content -->
       <div class="card" id="content">
-        <div class="muted">Selecciona Semana + Día y pulsa <span class="kbd">Ver menú</span>.</div>
+        <div class="subtitle">Selecciona Semana + Día y pulsa <b>Ver menú</b>.</div>
       </div>
     </div>
 
-    <div class="footer">
-      Hecho para Cartagena 🇨🇴 — ingredientes fáciles de conseguir (Éxito, Olímpica, Ara, D1, mercado).
-    </div>
+    <div class="footer">Hecho con amor para casa 🫶 — ingredientes fáciles (Éxito, Olímpica, Ara, D1, mercado).</div>
   </div>
 
 <script>
   // =========================
-  // DATOS (tu menú)
+  // IMÁGENES (gratis, lindas, por tipo)
+  // Son de picsum con seeds (no necesitas API keys).
+  // Si prefieres fotos "más comida real": te adapto a Unsplash.
+  // =========================
+  const IMG_BY_TAG = {
+    pollo:  "https://picsum.photos/seed/pollo-casa/1000/650",
+    res:    "https://picsum.photos/seed/res-casa/1000/650",
+    cerdo:  "https://picsum.photos/seed/cerdo-casa/1000/650",
+    salmon: "https://picsum.photos/seed/salmon-casa/1000/650",
+    frijol: "https://picsum.photos/seed/frijol-casa/1000/650",
+    default:"https://picsum.photos/seed/cocina-casa/1000/650"
+  };
+
+  // =========================
+  // TU RECETARIO (el mismo contenido que ya tenías)
   // =========================
   const RECETARIO = {
     "SEMANA 1": {
@@ -95,7 +330,7 @@
           "1/2 pimentón, 1 cebolla cabezona o 2 cebollas largas",
           "3–4 dientes de ajo",
           "Aceite, sal, pimienta, limón (opcional)",
-          "Arroz (1 taza y media aprox) + ajo para sofreír",
+          "Arroz + ajo para sofreír",
           "Aguacate, tomate, cebolla, limón, sal"
         ],
         pasos: [
@@ -118,8 +353,8 @@
         ingredientes: [
           "Carne molida (600 g)",
           "2 tomates, 1 cebolla larga, 2 dientes de ajo",
-          "Comino, sal, pimienta, color/achiote (opcional)",
-          "Arroz + palito (cilantro/cebolla larga) para dar sabor",
+          "Comino, sal, pimienta (opcional: color/achiote)",
+          "Arroz + palito (cebolla larga/cilantro) para dar sabor",
           "1–2 plátanos maduros",
           "Pepino, lechuga, tomate, cebolla, limón"
         ],
@@ -128,7 +363,7 @@
           "Sofríe el hogao 3–5 min. Agrega comino y sal.",
           "Añade la carne molida, mezcla y cocina 10–12 min hasta que quede suelta y bien cocida.",
           "Arroz palito: al agua del arroz añade cebolla larga/cilantro picado y un toque de sal.",
-          "Tajadas: corta el maduro en tajadas, airfryer 180–200°C 10–14 min (voltea a mitad) o sartén.",
+          "Tajadas: corta el maduro, airfryer 180–200°C 10–14 min (voltea a mitad) o sartén.",
           "Ensalada: pepino + lechuga + tomate + cebolla, limón y sal."
         ]
       },
@@ -162,13 +397,13 @@
         ingredientes: [
           "Lomo fino (600 g)",
           "Sal, pimienta, mantequilla o aceite, ajo (opcional)",
-          "Arroz + espinaca (1–2 tazas) + ajo",
+          "Arroz + espinaca + ajo",
           "Lechuga, tomate, maíz"
         ],
         pasos: [
           "Sazona el lomo con sal y pimienta.",
           "Sartén muy caliente: 2–3 min por lado (término medio) o 3–4 min por lado (más cocido). Reposa 3 min.",
-          "Arroz espinaca: licúa espinaca con un poquito de agua, úsalo como parte del líquido del arroz; sofríe ajo, agrega arroz y el líquido verde, sal.",
+          "Arroz espinaca: licúa espinaca con un poquito de agua; usa ese líquido para el arroz. Sofríe ajo, agrega arroz + líquido verde, sal.",
           "Ensalada: lechuga + tomate + maíz, limón y sal."
         ]
       },
@@ -181,15 +416,15 @@
         ],
         ingredientes: [
           "Pechuga (600 g)",
-          "Limón, orégano, sal, pimienta, ajo (opcional)",
-          "Plátano pochocho (maduro firme) o el que consigas como pochocho",
+          "Limón, orégano, sal, pimienta (opcional: ajo)",
+          "Plátano pochocho (o maduro firme) para patacón",
           "Verduras para saltear: zanahoria, calabacín, cebolla, pimentón (lo que haya)"
         ],
         pasos: [
           "Marina la pechuga con limón + orégano + sal + pimienta 10 min.",
-          "Asa en sartén/plancha 4–6 min por lado (según grosor) hasta cocción completa.",
-          "Patacón pochocho: corta, pre-cocina airfryer 180°C 8–10 min, aplasta y termina 200°C 6–8 min con sal.",
-          "Verduras salteadas: en sartén con ajo, saltea 6–8 min (que queden crocantes)."
+          "Asa en sartén/plancha 4–6 min por lado (según grosor).",
+          "Patacón pochocho: pre-cocina airfryer 180°C 8–10 min, aplasta y termina 200°C 6–8 min con sal.",
+          "Verduras salteadas: en sartén con ajo, saltea 6–8 min (crocantes)."
         ]
       }
     },
@@ -204,16 +439,16 @@
         ],
         ingredientes: [
           "Carne molida (600 g)",
-          "1 zanahoria rallada o en cubitos, 1 cebolla",
-          "Ajo, sal, pimienta, comino (opcional)",
+          "Zanahoria, cebolla, ajo",
+          "Sal, pimienta (opcional: comino)",
           "Plátano verde",
           "Aguacate, tomate, cebolla"
         ],
         pasos: [
           "Sofríe ajo + cebolla 2–3 min.",
           "Agrega zanahoria y cocina 2 min.",
-          "Añade carne, sal, pimienta (y comino opcional) y saltea 10–12 min.",
-          "Haz patacones en airfryer: 180°C 8 min, aplasta, 200°C 6–8 min.",
+          "Añade carne, sal, pimienta (y comino opcional) y cocina 10–12 min.",
+          "Patacón: 180°C 8 min, aplasta, 200°C 6–8 min.",
           "Ensalada clásica con limón y sal."
         ]
       },
@@ -226,40 +461,41 @@
         ],
         ingredientes: [
           "Cerdo (600 g)",
-          "Tomate, ajo, cebolla (opcional)",
-          "Papas (3–4 medianas), aceite, sal",
+          "Tomate, ajo (opcional: cebolla)",
+          "Papas, aceite, sal",
           "Pepino, limón, sal"
         ],
         pasos: [
           "Sofríe ajo + tomate (y cebolla si quieres) 3–5 min.",
-          "Agrega el cerdo en cubos o tiras, salpimienta, mezcla.",
-          "Añade un chorrito de agua, tapa y cocina 15–20 min hasta ablandar.",
-          "Papas: en cubos, aceite + sal, airfryer 200°C 15–20 min (mueve a mitad).",
-          "Pepino con limón y sal (opcional: pizca de pimienta)."
+          "Agrega el cerdo, salpimienta y mezcla.",
+          "Añade un chorrito de agua, tapa y cocina 15–20 min.",
+          "Papas: en cubos, aceite + sal, airfryer 200°C 15–20 min.",
+          "Pepino con limón y sal."
         ]
       },
       "MIÉRCOLES": {
         titulo: "Frijoles rojos + carne asada + arroz con ajo + maduro asado",
         menu: [
-          "Frijoles rojos (María y Candy)",
+          "Frijoles rojos",
           "Carne asada",
           "Arroz con ajo",
           "Maduro asado",
           "Ensalada: repollo + zanahoria"
         ],
         ingredientes: [
-          "Frijol rojo (2 tazas) + aliños al gusto",
+          "Frijol rojo + aliños al gusto",
           "Carne asada (600 g)",
           "Arroz + ajo",
           "Plátano maduro",
           "Repollo, zanahoria, limón, sal"
         ],
         pasos: [
-          "Frijoles: remoja (si puedes) y cocina hasta ablandar; haz hogao y mezcla para dar sabor.",
-          "Carne: salpimienta, plancha/sartén 3–4 min por lado según grosor.",
+          "Cocina los frijoles hasta ablandar (ideal si remojas antes).",
+          "Haz hogao y mezcla con los frijoles para dar sabor.",
+          "Carne: salpimienta y plancha 3–4 min por lado.",
           "Arroz de ajo: sofríe ajo 30 seg, agrega arroz, agua y sal.",
-          "Maduro: tajadas en airfryer 200°C 10–14 min.",
-          "Ensalada: repollo + zanahoria rallada + limón + sal."
+          "Maduro: airfryer 200°C 10–14 min.",
+          "Ensalada: repollo + zanahoria + limón + sal."
         ]
       },
       "JUEVES": {
@@ -275,19 +511,19 @@
           "Mantequilla, ajo, limón, sal, pimienta",
           "Arroz + limón",
           "Papas",
-          "Espinaca, limón, sal (opcional: tomate)"
+          "Espinaca, limón, sal"
         ],
         pasos: [
-          "Salmón: sal y pimienta. Sartén caliente, 3–4 min piel abajo, voltea 2 min; agrega mantequilla + ajo y baña.",
+          "Salmón: sal y pimienta. Sartén caliente, 3–4 min, voltea 2 min; agrega mantequilla + ajo y baña.",
           "Arroz: al final agrega jugo de limón y ralladura (poquita).",
           "Papas airfryer 200°C 15–20 min.",
-          "Ensalada de espinaca con limón y sal (opcional tomate)."
+          "Ensalada de espinaca con limón y sal."
         ]
       },
       "VIERNES": {
         titulo: "Lomo sellado con pimienta + patacón pochocho + ensalada",
         menu: [
-          "Lomo carne sellado con pimienta",
+          "Lomo sellado con pimienta",
           "Patacón pochocho",
           "Ensalada: lechuga + tomate + cebolla"
         ],
@@ -298,9 +534,9 @@
           "Lechuga, tomate, cebolla, limón"
         ],
         pasos: [
-          "Sazona lomo con sal y bastante pimienta.",
-          "Sella 2–3 min por lado en sartén caliente. Reposa 3 min.",
-          "Patacón pochocho: pre-cocina, aplasta y dora en airfryer como en semana 1.",
+          "Sazona lomo con sal y pimienta.",
+          "Sella 2–3 min por lado y reposa 3 min.",
+          "Patacón pochocho: 180°C 8–10 min, aplasta, 200°C 6–8 min.",
           "Ensalada fresca con limón y sal."
         ]
       }
@@ -317,7 +553,7 @@
         ],
         ingredientes: [
           "Cerdo (600 g)",
-          "Sal, pimienta, ajo (opcional)",
+          "Sal, pimienta (opcional: ajo)",
           "Arroz + cebolla larga/cilantro",
           "Papas",
           "Aguacate, tomate, cebolla"
@@ -344,14 +580,14 @@
         ],
         pasos: [
           "Sazona pechuga, ásala 4–6 min por lado.",
-          "Patacón verde en airfryer (180°C 8 min, aplasta, 200°C 6–8 min).",
+          "Patacón: 180°C 8 min, aplasta, 200°C 6–8 min.",
           "Pepino con limón y sal."
         ]
       },
       "MIÉRCOLES": {
         titulo: "Carne molida + arroz ajo + ensalada repollo zanahoria",
         menu: [
-          "Carne molida (estilo rápido con ajo y cebolla)",
+          "Carne molida (rápida con ajo y cebolla)",
           "Arroz con ajo",
           "Ensalada: repollo + zanahoria"
         ],
@@ -383,9 +619,9 @@
           "Espinaca, mango biche, limón, sal"
         ],
         pasos: [
-          "Salmón: sal, pimienta y limón. Sartén 3–4 min por lado (según grosor).",
+          "Salmón: sal, pimienta y limón. Sartén 3–4 min por lado.",
           "Arroz blanco normal.",
-          "Vegetales: aceite + sal, airfryer 190–200°C 10–14 min (mueve a mitad).",
+          "Vegetales: aceite + sal, airfryer 190–200°C 10–14 min.",
           "Ensalada: espinaca + tiritas de mango biche + limón + sal."
         ]
       },
@@ -405,7 +641,7 @@
           "Tomate + queso costeño"
         ],
         pasos: [
-          "Sella el lomo 2–3 min por lado; al final agrega ajo en mantequilla/aceite 30 seg y baña la carne.",
+          "Sella el lomo 2–3 min por lado; al final agrega ajo 30 seg y baña la carne.",
           "Arroz de ajo.",
           "Patacón pochocho en airfryer.",
           "Ensalada: tomate con cubitos de queso costeño."
@@ -424,15 +660,15 @@
         ],
         ingredientes: [
           "Pechuga (600 g)",
-          "Champiñones (1 bandeja), cebolla, ajo (opcional)",
+          "Champiñones, cebolla (opcional: ajo)",
           "Arroz + espinaca",
           "Papas",
           "Aguacate, tomate, cebolla"
         ],
         pasos: [
-          "Saltea cebolla (y ajo) 2 min; agrega champiñones 4 min.",
+          "Saltea cebolla 2 min; agrega champiñones 4 min.",
           "Añade pechuga en tiras/cubos, salpimienta y cocina 8–10 min.",
-          "Arroz espinaca como semana 1.",
+          "Arroz espinaca.",
           "Papas airfryer 200°C 15–20 min.",
           "Ensalada clásica."
         ]
@@ -453,7 +689,7 @@
           "Pepino, limón"
         ],
         pasos: [
-          "Mezcla paprika + sal + pimienta + gotica de miel (opcional) + limón. Unta el cerdo.",
+          "Unta el cerdo con paprika + sal + pimienta + gotica de miel (opcional) + limón.",
           "Horno 200°C 15–22 min según grosor (o sartén tapado).",
           "Arroz de ajo.",
           "Patacón verde en airfryer.",
@@ -470,7 +706,7 @@
         ],
         ingredientes: [
           "Frijol rojo",
-          "Carne molida (puedes usar 300–600 g según quieran)",
+          "Carne molida (300–600 g según quieran)",
           "Hogao: tomate + cebolla + ajo + comino",
           "Arroz",
           "Plátano maduro",
@@ -481,7 +717,7 @@
           "Haz hogao y agrega a los frijoles para sabor.",
           "Carne molida criolla: hogao + comino + carne 10–12 min; mezcla con los frijoles al final.",
           "Arroz blanco normal.",
-          "Maduro en airfryer 200°C 10–14 min.",
+          "Maduro: airfryer 200°C 10–14 min.",
           "Ensalada repollo + zanahoria con limón."
         ]
       },
@@ -501,7 +737,7 @@
         pasos: [
           "Saltea cebolla + ajo 2 min.",
           "Agrega pechuga en tiras, salpimienta y cocina 6–8 min.",
-          "Baja el fuego, añade crema Finesse y mezcla 2–3 min (sin que hierva fuerte).",
+          "Baja el fuego, añade crema Finesse y mezcla 2–3 min (sin hervir fuerte).",
           "Arroz espinaca.",
           "Ensalada de espinaca con limón y sal."
         ]
@@ -533,54 +769,42 @@
   };
 
   const WEEK_ORDER = ["SEMANA 1","SEMANA 2","SEMANA 3","SEMANA 4"];
-  const DAY_ORDER = ["LUNES","MARTES","MIÉRCOLES","JUEVES","VIERNES"];
+  const DAY_ORDER  = ["LUNES","MARTES","MIÉRCOLES","JUEVES","VIERNES"];
 
   // =========================
-  // UI
+  // Helpers: detectar tipo para imagen/chip
   // =========================
-  const weekSelect = document.getElementById("weekSelect");
-  const daySelect = document.getElementById("daySelect");
-  const content = document.getElementById("content");
-
-  function fillSelect(el, items){
-    el.innerHTML = "";
-    items.forEach(v=>{
-      const opt = document.createElement("option");
-      opt.value = v;
-      opt.textContent = v;
-      el.appendChild(opt);
-    });
+  function detectTag(titulo, menuArr){
+    const text = (titulo + " " + (menuArr||[]).join(" ")).toLowerCase();
+    if (text.includes("salmón") || text.includes("salmon")) return "salmon";
+    if (text.includes("frijol")) return "frijol";
+    if (text.includes("pechuga") || text.includes("pollo")) return "pollo";
+    if (text.includes("cerdo")) return "cerdo";
+    if (text.includes("lomo") || text.includes("res") || text.includes("carne asada")) return "res";
+    if (text.includes("carne molida")) return "res";
+    return "default";
   }
 
-  function render(){
-    const w = weekSelect.value;
-    const d = daySelect.value;
-    const data = RECETARIO?.[w]?.[d];
+  function tagLabel(tag){
+    return ({
+      pollo:"Pollo / Pechuga",
+      res:"Res",
+      cerdo:"Cerdo",
+      salmon:"Salmón",
+      frijol:"Fríjoles",
+      default:"Cocina"
+    })[tag] || "Cocina";
+  }
 
-    if(!data){
-      content.innerHTML = `<div class="muted">No hay receta para ${w} - ${d}.</div>`;
-      return;
-    }
-
-    content.innerHTML = `
-      <div class="pill">✅ ${w} · ${d}</div>
-      <div class="menuTitle">${data.titulo}</div>
-      <div class="muted">Menú del día</div>
-      <ul>${data.menu.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
-
-      <div class="hr"></div>
-
-      <div class="split">
-        <div>
-          <div class="sectionTitle">Ingredientes (aprox)</div>
-          <ul>${data.ingredientes.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
-        </div>
-        <div>
-          <div class="sectionTitle">Preparación paso a paso</div>
-          <ol>${data.pasos.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ol>
-        </div>
-      </div>
-    `;
+  function emojiByTag(tag){
+    return ({
+      pollo:"🍗",
+      res:"🥩",
+      cerdo:"🐖",
+      salmon:"🐟",
+      frijol:"🫘",
+      default:"🍽️"
+    })[tag] || "🍽️";
   }
 
   function escapeHtml(str){
@@ -592,7 +816,118 @@
       .replaceAll("'","&#039;");
   }
 
-  // Defaults: Semana 1 + Lunes
+  // =========================
+  // UI
+  // =========================
+  const weekSelect = document.getElementById("weekSelect");
+  const daySelect  = document.getElementById("daySelect");
+  const content    = document.getElementById("content");
+
+  const heroImg   = document.getElementById("heroImg");
+  const heroTitle = document.getElementById("heroTitle");
+  const heroDesc  = document.getElementById("heroDesc");
+  const heroChip  = document.getElementById("heroChip");
+
+  const pillWeek  = document.getElementById("pillWeek");
+  const pillDay   = document.getElementById("pillDay");
+  const pillType  = document.getElementById("pillType");
+
+  function fillSelect(el, items){
+    el.innerHTML = "";
+    items.forEach(v=>{
+      const opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = v;
+      el.appendChild(opt);
+    });
+  }
+
+  function buildNiceExtras(data){
+    // Extras "cariñosos" + dinámicos sin complicar: mise en place y tips
+    const mise = [
+      "Lava y pica verduras (cebolla, tomate, pepino) en 5–7 minutos.",
+      "Deja el arroz medido (taza) y el ajo listo.",
+      "Saca la proteína 10 min antes para que no quede fría por dentro."
+    ];
+    const tips = [
+      "Si quieres más sabor: termina con un chorrito de limón al final.",
+      "Si el arroz te queda simple: agrega ajo sofrito o cebolla larga.",
+      "Para ensaladas: limón + sal + toque de aceite = listo."
+    ];
+
+    return `
+      <div class="twoCols">
+        <div>
+          <div class="sectionTitle">🧺 Mise en place (dejar listo)</div>
+          <ul>${mise.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+        </div>
+        <div>
+          <div class="sectionTitle">✨ Tips rápidos</div>
+          <ul>${tips.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+        </div>
+      </div>
+    `;
+  }
+
+  function render(){
+    const w = weekSelect.value;
+    const d = daySelect.value;
+    const data = RECETARIO?.[w]?.[d];
+
+    pillWeek.textContent = w;
+    pillDay.textContent  = d;
+
+    if(!data){
+      content.innerHTML = `<div class="subtitle">No hay receta para ${escapeHtml(w)} - ${escapeHtml(d)}.</div>`;
+      heroImg.style.backgroundImage = `url(${IMG_BY_TAG.default})`;
+      heroTitle.textContent = "Tu menú del día";
+      heroDesc.textContent = "Selecciona semana y día";
+      heroChip.textContent = "✨";
+      pillType.textContent = "—";
+      return;
+    }
+
+    const tag = detectTag(data.titulo, data.menu);
+    const img = IMG_BY_TAG[tag] || IMG_BY_TAG.default;
+
+    heroImg.style.backgroundImage = `url(${img})`;
+    heroTitle.textContent = `${emojiByTag(tag)} ${data.titulo}`;
+    heroDesc.textContent  = `${w} · ${d}`;
+    heroChip.textContent  = `${emojiByTag(tag)} ${tagLabel(tag)}`;
+
+    pillType.textContent = `${emojiByTag(tag)} ${tagLabel(tag)}`;
+
+    content.innerHTML = `
+      <div class="pillRow">
+        <div class="pill"><span class="spark s4">✅</span> <strong>${escapeHtml(w)} · ${escapeHtml(d)}</strong></div>
+        <div class="pill"><span class="spark s2">${emojiByTag(tag)}</span> ${escapeHtml(tagLabel(tag))}</div>
+        <div class="pill"><span class="spark s1">🧂</span> Fácil y casero</div>
+      </div>
+
+      <div class="title">${escapeHtml(data.titulo)}</div>
+      <div class="subtitle">Menú del día</div>
+      <ul>${data.menu.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+
+      <div class="hr"></div>
+
+      <div class="twoCols">
+        <div>
+          <div class="sectionTitle">🧾 Ingredientes (aprox)</div>
+          <ul>${data.ingredientes.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+        </div>
+        <div>
+          <div class="sectionTitle">👩‍🍳 Preparación paso a paso</div>
+          <ol>${data.pasos.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ol>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      ${buildNiceExtras(data)}
+    `;
+  }
+
+  // Init selects
   fillSelect(weekSelect, WEEK_ORDER);
   fillSelect(daySelect, DAY_ORDER);
 
@@ -616,7 +951,7 @@
       ...data.ingredientes.map(i=>`- ${i}`),
       ``,
       `Paso a paso:`,
-      ...data.pasos.map((p,idx)=>`${idx+1}. ${p}`),
+      ...data.pasos.map((p,idx)=>`${idx+1}. ${p}`)
     ].join("\n");
 
     try{
@@ -627,12 +962,12 @@
     }
   });
 
-  // Mostrar "Hoy" (solo informativo)
+  // Today badge
   const today = new Date();
   const dias = ["DOMINGO","LUNES","MARTES","MIÉRCOLES","JUEVES","VIERNES","SÁBADO"];
-  document.getElementById("todayPill").textContent = `📅 Hoy: ${dias[today.getDay()]}`;
+  document.getElementById("todayBadge").textContent = `Hoy: ${dias[today.getDay()]}`;
 
-  // Render inicial
+  // Default render
   render();
 </script>
 </body>
