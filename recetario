@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Recetario Mensual — Menú por Semana y Día</title>
+  <style>
+    :root { --bg:#0b1220; --card:#111a2e; --muted:#9fb0d0; --txt:#e9efff; --accent:#7aa2ff; --line:#243458; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:linear-gradient(180deg,#070c16 0%, #0b1220 60%); color:var(--txt); }
+    .wrap{ max-width:1050px; margin:0 auto; padding:24px; }
+    h1{ font-size:22px; margin:0 0 6px; }
+    p{ margin:0 0 16px; color:var(--muted); }
+    .grid{ display:grid; gap:14px; grid-template-columns: 1fr; }
+    @media (min-width: 900px){ .grid{ grid-template-columns: 360px 1fr; } }
+    .card{ background:rgba(17,26,46,.92); border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow: 0 12px 30px rgba(0,0,0,.35); }
+    label{ display:block; font-size:12px; color:var(--muted); margin:10px 0 6px; }
+    select{ width:100%; padding:12px 12px; border-radius:12px; border:1px solid var(--line); background:#0a1122; color:var(--txt); outline:none; }
+    .btns{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+    button{ cursor:pointer; border:1px solid var(--line); background:#0a1122; color:var(--txt); padding:10px 12px; border-radius:12px; }
+    button.primary{ background: rgba(122,162,255,.12); border-color: rgba(122,162,255,.45); }
+    button:hover{ filter:brightness(1.07); }
+    .pill{ display:inline-flex; gap:8px; align-items:center; padding:6px 10px; border-radius:999px; background:rgba(122,162,255,.10); border:1px solid rgba(122,162,255,.30); color:var(--txt); font-size:12px; }
+    .sectionTitle{ margin:14px 0 8px; font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .menuTitle{ font-size:18px; margin:8px 0 2px; }
+    .muted{ color:var(--muted); }
+    ul,ol{ margin:8px 0 0 18px; }
+    li{ margin:6px 0; }
+    .split{ display:grid; gap:14px; grid-template-columns: 1fr; }
+    @media (min-width: 900px){ .split{ grid-template-columns: 1fr 1fr; } }
+    .tiny{ font-size:12px; color:var(--muted); }
+    .hr{ height:1px; background:var(--line); margin:14px 0; }
+    .footer{ margin-top:18px; font-size:12px; color:var(--muted); }
+    .kbd{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New"; background:#0a1122; border:1px solid var(--line); padding:2px 6px; border-radius:8px; }
+    @media print{
+      body{ background:white; color:black; }
+      .card{ box-shadow:none; background:white; border:1px solid #ddd; }
+      select, button{ display:none !important; }
+      .pill{ border:1px solid #aaa; background:#f3f3f3; color:#111; }
+      .muted, p, .tiny, .footer{ color:#333; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🍽️ Recetario Mensual (Semana + Día)</h1>
+    <p>Elige la semana y el día, y te sale el menú con preparación paso a paso.</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="pill" id="todayPill">📅 Hoy: —</div>
+
+        <label for="weekSelect">Semana</label>
+        <select id="weekSelect"></select>
+
+        <label for="daySelect">Día</label>
+        <select id="daySelect"></select>
+
+        <div class="btns">
+          <button class="primary" id="showBtn">Ver menú</button>
+          <button id="printBtn">Imprimir</button>
+          <button id="copyBtn">Copiar receta</button>
+        </div>
+
+        <div class="hr"></div>
+        <div class="tiny">
+          Tip: puedes fijar la semana del mes y cada día solo abres esto, eliges día, y cocinas.
+        </div>
+      </div>
+
+      <div class="card" id="content">
+        <div class="muted">Selecciona Semana + Día y pulsa <span class="kbd">Ver menú</span>.</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Hecho para Cartagena 🇨🇴 — ingredientes fáciles de conseguir (Éxito, Olímpica, Ara, D1, mercado).
+    </div>
+  </div>
+
+<script>
+  // =========================
+  // DATOS (tu menú)
+  // =========================
+  const RECETARIO = {
+    "SEMANA 1": {
+      "LUNES": {
+        titulo: "Pechuga en cubos salteada con pimentón, cebolla y ajo",
+        menu: [
+          "Pechuga en cubos salteada con pimentón, cebolla y ajo",
+          "Arroz de ajo",
+          "Ensalada: aguacate + tomate + cebolla"
+        ],
+        ingredientes: [
+          "Pechuga (600 g total para 3 personas)",
+          "1/2 pimentón, 1 cebolla cabezona o 2 cebollas largas",
+          "3–4 dientes de ajo",
+          "Aceite, sal, pimienta, limón (opcional)",
+          "Arroz (1 taza y media aprox) + ajo para sofreír",
+          "Aguacate, tomate, cebolla, limón, sal"
+        ],
+        pasos: [
+          "Corta la pechuga en cubos. Sazona con sal, pimienta y (opcional) limón.",
+          "En sartén caliente con aceite: sofríe ajo + cebolla 2–3 min.",
+          "Agrega pimentón en tiras, 2 min.",
+          "Añade la pechuga y saltea 8–10 min hasta dorar y que no quede rosada.",
+          "Arroz de ajo: sofríe ajo picado en aceite 30 seg, agrega arroz, mezcla, añade agua y sal; cocina normal.",
+          "Ensalada: pica tomate + cebolla, agrega aguacate al final, limón y sal."
+        ]
+      },
+      "MARTES": {
+        titulo: "Carne molida guisada criolla",
+        menu: [
+          "Carne molida guisada criolla (tomate, cebolla larga, comino)",
+          "Arroz palito",
+          "Tajadas de plátano maduro",
+          "Ensalada: pepino + tomate + cebolla + lechuga + limón"
+        ],
+        ingredientes: [
+          "Carne molida (600 g)",
+          "2 tomates, 1 cebolla larga, 2 dientes de ajo",
+          "Comino, sal, pimienta, color/achiote (opcional)",
+          "Arroz + palito (cilantro/cebolla larga) para dar sabor",
+          "1–2 plátanos maduros",
+          "Pepino, lechuga, tomate, cebolla, limón"
+        ],
+        pasos: [
+          "Pica tomate, cebolla larga y ajo (hogao).",
+          "Sofríe el hogao 3–5 min. Agrega comino y sal.",
+          "Añade la carne molida, mezcla y cocina 10–12 min hasta que quede suelta y bien cocida.",
+          "Arroz palito: al agua del arroz añade cebolla larga/cilantro picado y un toque de sal.",
+          "Tajadas: corta el maduro en tajadas, airfryer 180–200°C 10–14 min (voltea a mitad) o sartén.",
+          "Ensalada: pepino + lechuga + tomate + cebolla, limón y sal."
+        ]
+      },
+      "MIÉRCOLES": {
+        titulo: "Cerdo asado simple (sal y pimienta) + patacón",
+        menu: [
+          "Cerdo asado (sal y pimienta)",
+          "Patacón",
+          "Ensalada: zanahoria rallada + cebolla + tomate + aguacate"
+        ],
+        ingredientes: [
+          "Cerdo (600 g) (lomo/chuleta/pulpa)",
+          "Sal, pimienta, aceite",
+          "Plátano verde (1 grande o 2 medianos)",
+          "Zanahoria, tomate, cebolla, aguacate, limón"
+        ],
+        pasos: [
+          "Sazona el cerdo con sal y pimienta. (Opcional: limón/ajo si quieres más sabor).",
+          "Sella en sartén 2–3 min por lado. Luego termina en sartén tapado 6–8 min o en horno 200°C 12–15 min según grosor.",
+          "Patacón: corta el plátano verde en trozos, airfryer 180°C 8 min, aplasta, vuelve a airfryer 200°C 6–8 min con sal.",
+          "Ensalada: zanahoria rallada + tomate + cebolla; agrega aguacate al final, limón y sal."
+        ]
+      },
+      "JUEVES": {
+        titulo: "Lomo fino a la plancha + arroz espinaca",
+        menu: [
+          "Lomo fino a la plancha",
+          "Arroz con espinaca",
+          "Ensalada: lechuga + maíz + tomate"
+        ],
+        ingredientes: [
+          "Lomo fino (600 g)",
+          "Sal, pimienta, mantequilla o aceite, ajo (opcional)",
+          "Arroz + espinaca (1–2 tazas) + ajo",
+          "Lechuga, tomate, maíz"
+        ],
+        pasos: [
+          "Sazona el lomo con sal y pimienta.",
+          "Sartén muy caliente: 2–3 min por lado (término medio) o 3–4 min por lado (más cocido). Reposa 3 min.",
+          "Arroz espinaca: licúa espinaca con un poquito de agua, úsalo como parte del líquido del arroz; sofríe ajo, agrega arroz y el líquido verde, sal.",
+          "Ensalada: lechuga + tomate + maíz, limón y sal."
+        ]
+      },
+      "VIERNES": {
+        titulo: "Pechuga asada con limón y orégano + patacón pochocho",
+        menu: [
+          "Pechuga asada con limón y orégano",
+          "Patacón pochocho",
+          "Ensalada: verduras salteadas"
+        ],
+        ingredientes: [
+          "Pechuga (600 g)",
+          "Limón, orégano, sal, pimienta, ajo (opcional)",
+          "Plátano pochocho (maduro firme) o el que consigas como pochocho",
+          "Verduras para saltear: zanahoria, calabacín, cebolla, pimentón (lo que haya)"
+        ],
+        pasos: [
+          "Marina la pechuga con limón + orégano + sal + pimienta 10 min.",
+          "Asa en sartén/plancha 4–6 min por lado (según grosor) hasta cocción completa.",
+          "Patacón pochocho: corta, pre-cocina airfryer 180°C 8–10 min, aplasta y termina 200°C 6–8 min con sal.",
+          "Verduras salteadas: en sartén con ajo, saltea 6–8 min (que queden crocantes)."
+        ]
+      }
+    },
+
+    "SEMANA 2": {
+      "LUNES": {
+        titulo: "Carne molida salteada con zanahoria y cebolla + patacón verde",
+        menu: [
+          "Carne molida salteada con zanahoria y cebolla",
+          "Patacón verde",
+          "Ensalada: aguacate + tomate + cebolla"
+        ],
+        ingredientes: [
+          "Carne molida (600 g)",
+          "1 zanahoria rallada o en cubitos, 1 cebolla",
+          "Ajo, sal, pimienta, comino (opcional)",
+          "Plátano verde",
+          "Aguacate, tomate, cebolla"
+        ],
+        pasos: [
+          "Sofríe ajo + cebolla 2–3 min.",
+          "Agrega zanahoria y cocina 2 min.",
+          "Añade carne, sal, pimienta (y comino opcional) y saltea 10–12 min.",
+          "Haz patacones en airfryer: 180°C 8 min, aplasta, 200°C 6–8 min.",
+          "Ensalada clásica con limón y sal."
+        ]
+      },
+      "MARTES": {
+        titulo: "Cerdo guisado casero + papas airfryer + ensalada pepino limón",
+        menu: [
+          "Cerdo guisado estilo casero (tomate y ajo)",
+          "Papas en airfryer",
+          "Ensalada: pepino + limón"
+        ],
+        ingredientes: [
+          "Cerdo (600 g)",
+          "Tomate, ajo, cebolla (opcional)",
+          "Papas (3–4 medianas), aceite, sal",
+          "Pepino, limón, sal"
+        ],
+        pasos: [
+          "Sofríe ajo + tomate (y cebolla si quieres) 3–5 min.",
+          "Agrega el cerdo en cubos o tiras, salpimienta, mezcla.",
+          "Añade un chorrito de agua, tapa y cocina 15–20 min hasta ablandar.",
+          "Papas: en cubos, aceite + sal, airfryer 200°C 15–20 min (mueve a mitad).",
+          "Pepino con limón y sal (opcional: pizca de pimienta)."
+        ]
+      },
+      "MIÉRCOLES": {
+        titulo: "Frijoles rojos + carne asada + arroz con ajo + maduro asado",
+        menu: [
+          "Frijoles rojos (María y Candy)",
+          "Carne asada",
+          "Arroz con ajo",
+          "Maduro asado",
+          "Ensalada: repollo + zanahoria"
+        ],
+        ingredientes: [
+          "Frijol rojo (2 tazas) + aliños al gusto",
+          "Carne asada (600 g)",
+          "Arroz + ajo",
+          "Plátano maduro",
+          "Repollo, zanahoria, limón, sal"
+        ],
+        pasos: [
+          "Frijoles: remoja (si puedes) y cocina hasta ablandar; haz hogao y mezcla para dar sabor.",
+          "Carne: salpimienta, plancha/sartén 3–4 min por lado según grosor.",
+          "Arroz de ajo: sofríe ajo 30 seg, agrega arroz, agua y sal.",
+          "Maduro: tajadas en airfryer 200°C 10–14 min.",
+          "Ensalada: repollo + zanahoria rallada + limón + sal."
+        ]
+      },
+      "JUEVES": {
+        titulo: "Salmón sellado con mantequilla y ajo + arroz limón + papas airfryer",
+        menu: [
+          "Salmón sellado con mantequilla y ajo",
+          "Arroz con limón",
+          "Papas airfryer",
+          "Ensalada: espinaca fresca"
+        ],
+        ingredientes: [
+          "Salmón (3 filetes)",
+          "Mantequilla, ajo, limón, sal, pimienta",
+          "Arroz + limón",
+          "Papas",
+          "Espinaca, limón, sal (opcional: tomate)"
+        ],
+        pasos: [
+          "Salmón: sal y pimienta. Sartén caliente, 3–4 min piel abajo, voltea 2 min; agrega mantequilla + ajo y baña.",
+          "Arroz: al final agrega jugo de limón y ralladura (poquita).",
+          "Papas airfryer 200°C 15–20 min.",
+          "Ensalada de espinaca con limón y sal (opcional tomate)."
+        ]
+      },
+      "VIERNES": {
+        titulo: "Lomo sellado con pimienta + patacón pochocho + ensalada",
+        menu: [
+          "Lomo carne sellado con pimienta",
+          "Patacón pochocho",
+          "Ensalada: lechuga + tomate + cebolla"
+        ],
+        ingredientes: [
+          "Lomo fino (600 g)",
+          "Pimienta, sal, aceite/mantequilla",
+          "Plátano pochocho",
+          "Lechuga, tomate, cebolla, limón"
+        ],
+        pasos: [
+          "Sazona lomo con sal y bastante pimienta.",
+          "Sella 2–3 min por lado en sartén caliente. Reposa 3 min.",
+          "Patacón pochocho: pre-cocina, aplasta y dora en airfryer como en semana 1.",
+          "Ensalada fresca con limón y sal."
+        ]
+      }
+    },
+
+    "SEMANA 3": {
+      "LUNES": {
+        titulo: "Cerdo a la plancha + arroz palito + papas airfryer",
+        menu: [
+          "Cerdo a la plancha",
+          "Arroz palito",
+          "Papas airfryer",
+          "Ensalada: aguacate + tomate + cebolla"
+        ],
+        ingredientes: [
+          "Cerdo (600 g)",
+          "Sal, pimienta, ajo (opcional)",
+          "Arroz + cebolla larga/cilantro",
+          "Papas",
+          "Aguacate, tomate, cebolla"
+        ],
+        pasos: [
+          "Sazona el cerdo y cocínalo a la plancha 4–6 min por lado.",
+          "Arroz palito con cebolla larga/cilantro para sabor.",
+          "Papas airfryer 200°C 15–20 min.",
+          "Ensalada clásica."
+        ]
+      },
+      "MARTES": {
+        titulo: "Pechuga asada + patacón verde + ensalada pepino limón",
+        menu: [
+          "Pechuga asada",
+          "Patacón verde",
+          "Ensalada: pepino + limón"
+        ],
+        ingredientes: [
+          "Pechuga (600 g)",
+          "Sal, pimienta, limón (opcional)",
+          "Plátano verde",
+          "Pepino, limón, sal"
+        ],
+        pasos: [
+          "Sazona pechuga, ásala 4–6 min por lado.",
+          "Patacón verde en airfryer (180°C 8 min, aplasta, 200°C 6–8 min).",
+          "Pepino con limón y sal."
+        ]
+      },
+      "MIÉRCOLES": {
+        titulo: "Carne molida + arroz ajo + ensalada repollo zanahoria",
+        menu: [
+          "Carne molida (estilo rápido con ajo y cebolla)",
+          "Arroz con ajo",
+          "Ensalada: repollo + zanahoria"
+        ],
+        ingredientes: [
+          "Carne molida (600 g)",
+          "Ajo, cebolla, sal, pimienta",
+          "Arroz + ajo",
+          "Repollo, zanahoria, limón"
+        ],
+        pasos: [
+          "Sofríe ajo + cebolla, agrega carne, salpimienta y cocina 10–12 min.",
+          "Arroz de ajo.",
+          "Ensalada repollo + zanahoria con limón."
+        ]
+      },
+      "JUEVES": {
+        titulo: "Salmón al sartén con limón y pimienta + arroz blanco + vegetales airfryer",
+        menu: [
+          "Salmón al sartén con limón y pimienta",
+          "Arroz blanco",
+          "Vegetales airfryer",
+          "Ensalada: espinaca + mango biche"
+        ],
+        ingredientes: [
+          "Salmón (3 filetes)",
+          "Limón, pimienta, sal",
+          "Arroz",
+          "Vegetales: brócoli/zanahoria/calabacín/pimentón (lo que haya)",
+          "Espinaca, mango biche, limón, sal"
+        ],
+        pasos: [
+          "Salmón: sal, pimienta y limón. Sartén 3–4 min por lado (según grosor).",
+          "Arroz blanco normal.",
+          "Vegetales: aceite + sal, airfryer 190–200°C 10–14 min (mueve a mitad).",
+          "Ensalada: espinaca + tiritas de mango biche + limón + sal."
+        ]
+      },
+      "VIERNES": {
+        titulo: "Lomo fino a la plancha con ajo + arroz ajo + patacón pochocho",
+        menu: [
+          "Lomo fino a la plancha con ajo",
+          "Arroz con ajo",
+          "Patacón pochocho",
+          "Ensalada: tomate + queso costeño"
+        ],
+        ingredientes: [
+          "Lomo fino (600 g)",
+          "Ajo, sal, pimienta",
+          "Arroz + ajo",
+          "Plátano pochocho",
+          "Tomate + queso costeño"
+        ],
+        pasos: [
+          "Sella el lomo 2–3 min por lado; al final agrega ajo en mantequilla/aceite 30 seg y baña la carne.",
+          "Arroz de ajo.",
+          "Patacón pochocho en airfryer.",
+          "Ensalada: tomate con cubitos de queso costeño."
+        ]
+      }
+    },
+
+    "SEMANA 4": {
+      "LUNES": {
+        titulo: "Pechuga salteada con champiñones y cebolla + arroz espinaca",
+        menu: [
+          "Pechuga salteada con champiñones y cebolla",
+          "Arroz espinaca",
+          "Papas airfryer",
+          "Ensalada: aguacate + tomate + cebolla"
+        ],
+        ingredientes: [
+          "Pechuga (600 g)",
+          "Champiñones (1 bandeja), cebolla, ajo (opcional)",
+          "Arroz + espinaca",
+          "Papas",
+          "Aguacate, tomate, cebolla"
+        ],
+        pasos: [
+          "Saltea cebolla (y ajo) 2 min; agrega champiñones 4 min.",
+          "Añade pechuga en tiras/cubos, salpimienta y cocina 8–10 min.",
+          "Arroz espinaca como semana 1.",
+          "Papas airfryer 200°C 15–20 min.",
+          "Ensalada clásica."
+        ]
+      },
+      "MARTES": {
+        titulo: "Cerdo al horno con paprika y miel ligera + arroz ajo + patacón verde",
+        menu: [
+          "Cerdo al horno con especias dulces (paprika y miel ligera)",
+          "Arroz con ajo",
+          "Patacón verde",
+          "Ensalada: pepino limón"
+        ],
+        ingredientes: [
+          "Cerdo (600 g)",
+          "Paprika, sal, pimienta, 1 cucharadita de miel (opcional), limón",
+          "Arroz + ajo",
+          "Plátano verde",
+          "Pepino, limón"
+        ],
+        pasos: [
+          "Mezcla paprika + sal + pimienta + gotica de miel (opcional) + limón. Unta el cerdo.",
+          "Horno 200°C 15–22 min según grosor (o sartén tapado).",
+          "Arroz de ajo.",
+          "Patacón verde en airfryer.",
+          "Pepino con limón y sal."
+        ]
+      },
+      "MIÉRCOLES": {
+        titulo: "Frijoles rojos con carne molida criolla + arroz blanco + maduro airfryer",
+        menu: [
+          "Frijoles rojos con carne molida criolla",
+          "Arroz blanco",
+          "Maduro airfryer",
+          "Ensalada: repollo + zanahoria"
+        ],
+        ingredientes: [
+          "Frijol rojo",
+          "Carne molida (puedes usar 300–600 g según quieran)",
+          "Hogao: tomate + cebolla + ajo + comino",
+          "Arroz",
+          "Plátano maduro",
+          "Repollo, zanahoria, limón"
+        ],
+        pasos: [
+          "Cocina frijoles hasta que estén blanditos.",
+          "Haz hogao y agrega a los frijoles para sabor.",
+          "Carne molida criolla: hogao + comino + carne 10–12 min; mezcla con los frijoles al final.",
+          "Arroz blanco normal.",
+          "Maduro en airfryer 200°C 10–14 min.",
+          "Ensalada repollo + zanahoria con limón."
+        ]
+      },
+      "JUEVES": {
+        titulo: "Pechuga en tiras en crema (Finesse) + arroz espinaca + ensalada espinaca",
+        menu: [
+          "Pechuga en tiras en crema (Finesse)",
+          "Arroz espinaca",
+          "Ensalada: espinaca fresca"
+        ],
+        ingredientes: [
+          "Pechuga (600 g)",
+          "Crema Finesse (o crema ligera), ajo, cebolla",
+          "Arroz + espinaca",
+          "Espinaca + limón + sal"
+        ],
+        pasos: [
+          "Saltea cebolla + ajo 2 min.",
+          "Agrega pechuga en tiras, salpimienta y cocina 6–8 min.",
+          "Baja el fuego, añade crema Finesse y mezcla 2–3 min (sin que hierva fuerte).",
+          "Arroz espinaca.",
+          "Ensalada de espinaca con limón y sal."
+        ]
+      },
+      "VIERNES": {
+        titulo: "Lomo fino grillado con romero y ajo + arroz palito + patacón pochocho",
+        menu: [
+          "Lomo fino grillado con romero y ajo",
+          "Arroz palito",
+          "Patacón pochocho",
+          "Ensalada: lechuga + tomate"
+        ],
+        ingredientes: [
+          "Lomo fino (600 g)",
+          "Romero (seco sirve), ajo, sal, pimienta",
+          "Arroz + cebolla larga/cilantro",
+          "Plátano pochocho",
+          "Lechuga, tomate, limón"
+        ],
+        pasos: [
+          "Sazona lomo con sal, pimienta, romero y ajo.",
+          "Plancha/sartén: 2–3 min por lado (o al gusto). Reposa 3 min.",
+          "Arroz palito.",
+          "Patacón pochocho en airfryer.",
+          "Ensalada lechuga + tomate con limón y sal."
+        ]
+      }
+    }
+  };
+
+  const WEEK_ORDER = ["SEMANA 1","SEMANA 2","SEMANA 3","SEMANA 4"];
+  const DAY_ORDER = ["LUNES","MARTES","MIÉRCOLES","JUEVES","VIERNES"];
+
+  // =========================
+  // UI
+  // =========================
+  const weekSelect = document.getElementById("weekSelect");
+  const daySelect = document.getElementById("daySelect");
+  const content = document.getElementById("content");
+
+  function fillSelect(el, items){
+    el.innerHTML = "";
+    items.forEach(v=>{
+      const opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = v;
+      el.appendChild(opt);
+    });
+  }
+
+  function render(){
+    const w = weekSelect.value;
+    const d = daySelect.value;
+    const data = RECETARIO?.[w]?.[d];
+
+    if(!data){
+      content.innerHTML = `<div class="muted">No hay receta para ${w} - ${d}.</div>`;
+      return;
+    }
+
+    content.innerHTML = `
+      <div class="pill">✅ ${w} · ${d}</div>
+      <div class="menuTitle">${data.titulo}</div>
+      <div class="muted">Menú del día</div>
+      <ul>${data.menu.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+
+      <div class="hr"></div>
+
+      <div class="split">
+        <div>
+          <div class="sectionTitle">Ingredientes (aprox)</div>
+          <ul>${data.ingredientes.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>
+        </div>
+        <div>
+          <div class="sectionTitle">Preparación paso a paso</div>
+          <ol>${data.pasos.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ol>
+        </div>
+      </div>
+    `;
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  // Defaults: Semana 1 + Lunes
+  fillSelect(weekSelect, WEEK_ORDER);
+  fillSelect(daySelect, DAY_ORDER);
+
+  document.getElementById("showBtn").addEventListener("click", render);
+  document.getElementById("printBtn").addEventListener("click", ()=>window.print());
+
+  document.getElementById("copyBtn").addEventListener("click", async ()=>{
+    const w = weekSelect.value;
+    const d = daySelect.value;
+    const data = RECETARIO?.[w]?.[d];
+    if(!data) return;
+
+    const text = [
+      `${w} - ${d}`,
+      `Título: ${data.titulo}`,
+      ``,
+      `Menú:`,
+      ...data.menu.map(m=>`- ${m}`),
+      ``,
+      `Ingredientes:`,
+      ...data.ingredientes.map(i=>`- ${i}`),
+      ``,
+      `Paso a paso:`,
+      ...data.pasos.map((p,idx)=>`${idx+1}. ${p}`),
+    ].join("\n");
+
+    try{
+      await navigator.clipboard.writeText(text);
+      alert("✅ Receta copiada. Pégala en WhatsApp o Notas.");
+    }catch(e){
+      alert("No pude copiar automáticamente. Selecciona y copia manual.");
+    }
+  });
+
+  // Mostrar "Hoy" (solo informativo)
+  const today = new Date();
+  const dias = ["DOMINGO","LUNES","MARTES","MIÉRCOLES","JUEVES","VIERNES","SÁBADO"];
+  document.getElementById("todayPill").textContent = `📅 Hoy: ${dias[today.getDay()]}`;
+
+  // Render inicial
+  render();
+</script>
+</body>
+</html>
